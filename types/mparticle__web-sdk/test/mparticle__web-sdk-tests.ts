@@ -24,7 +24,18 @@ const customFlags: mParticle.SDKEventCustomFlags = {
 
 const eventOptions: mParticle.SDKEventOptions = {
     shouldUploadEvent: false,
+    sourceMessageId: "sourceMessageId",
 };
+
+const eventOptionsOnlyShouldUpload: mParticle.SDKEventOptions = {
+    shouldUploadEvent: true,
+};
+
+const eventOptionsOnlySourceMessageId: mParticle.SDKEventOptions = {
+    sourceMessageId: "test-message-id",
+};
+
+const eventOptionsEmpty: mParticle.SDKEventOptions = {};
 
 const identifyRequest: mParticle.IdentifyRequest = {
     userIdentities: {
@@ -200,6 +211,15 @@ mParticle.logEvent("eventName", mParticle.EventType.Location);
 mParticle.logEvent("eventName", mParticle.EventType.Location, customAttrs);
 mParticle.logEvent("eventName", mParticle.EventType.Location, customAttrs, customFlags);
 mParticle.logEvent("eventName", mParticle.EventType.Location, customAttrs, customFlags, eventOptions);
+mParticle.logEvent("eventName", mParticle.EventType.Location, customAttrs, customFlags, eventOptionsOnlyShouldUpload);
+mParticle.logEvent(
+    "eventName",
+    mParticle.EventType.Location,
+    customAttrs,
+    customFlags,
+    eventOptionsOnlySourceMessageId,
+);
+mParticle.logEvent("eventName", mParticle.EventType.Location, customAttrs, customFlags, eventOptionsEmpty);
 
 mParticle.logForm("click", "eventName");
 mParticle.logForm("click", "eventName", mParticle.EventType.Location);
@@ -244,6 +264,10 @@ mParticle.Rokt.hashSha256(12345);
 mParticle.Rokt.hashSha256(true);
 mParticle.Rokt.hashSha256(undefined);
 mParticle.Rokt.hashSha256(null);
+
+mParticle.Rokt.onShoppableAdsReady(() => {
+    // shoppable ads ready
+});
 
 mParticle.generateHash("test-string");
 
@@ -538,6 +562,8 @@ const identifyIdentities: mParticle.IdentifyRequest = {
         twitter: "email",
         microsoft: "email",
         yahoo: "email",
+        email_sha256: "email",
+        mobile_sha256: "email",
     },
 };
 

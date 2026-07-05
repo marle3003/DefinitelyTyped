@@ -50,11 +50,15 @@ import { fileURLToPath } from "node:url";
     const stdErrorFd = process.stderr.fd;
 }
 {
-    function myCb(err: Error): void {
-    }
-    process.setUncaughtExceptionCaptureCallback(myCb);
+    process.setUncaughtExceptionCaptureCallback((err) => {
+        err; // $ExpectType unknown
+    });
     process.setUncaughtExceptionCaptureCallback(null);
-    const b: boolean = process.hasUncaughtExceptionCaptureCallback();
+    process.addUncaughtExceptionCaptureCallback((err) => {
+        err; // $ExpectType unknown
+        return true;
+    });
+    process.hasUncaughtExceptionCaptureCallback(); // $ExpectType boolean
 }
 
 {
@@ -116,6 +120,7 @@ import { fileURLToPath } from "node:url";
 }
 {
     process.traceDeprecation = true;
+    process.traceProcessWarnings = true;
 }
 
 {

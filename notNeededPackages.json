@@ -664,6 +664,10 @@
             "libraryName": "canvaskit-wasm",
             "asOfVersion": "0.18.1"
         },
+        "carbon__feature-flags": {
+            "libraryName": "@carbon/feature-flags",
+            "asOfVersion": "1.1.0"
+        },
         "carbon__icon-helpers": {
             "libraryName": "@carbon/icon-helpers",
             "asOfVersion": "10.45.0"
@@ -671,6 +675,10 @@
         "carbon__icons-react": {
             "libraryName": "@carbon/icons-react",
             "asOfVersion": "11.29.0"
+        },
+        "carbon__motion": {
+            "libraryName": "@carbon/motion",
+            "asOfVersion": "11.44.0"
         },
         "carbon__pictograms-react": {
             "libraryName": "@carbon/pictograms-react",
@@ -1104,6 +1112,10 @@
             "libraryName": "codegen.macro",
             "asOfVersion": "4.1.0"
         },
+        "color-convert": {
+            "libraryName": "color-convert",
+            "asOfVersion": "3.0.1"
+        },
         "colorbrewer": {
             "libraryName": "colorbrewer",
             "asOfVersion": "1.6.0"
@@ -1160,6 +1172,10 @@
             "libraryName": "conf",
             "asOfVersion": "3.0.0"
         },
+        "config": {
+            "libraryName": "config",
+            "asOfVersion": "4.4.0"
+        },
         "confirmdialog": {
             "libraryName": "confirmdialog",
             "asOfVersion": "1.0.0"
@@ -1191,6 +1207,10 @@
         "content-range": {
             "libraryName": "content-range",
             "asOfVersion": "2.0.2"
+        },
+        "content-type": {
+            "libraryName": "content-type",
+            "asOfVersion": "2.0.0"
         },
         "contentstack": {
             "libraryName": "contentstack",
@@ -1664,6 +1684,10 @@
         "diff2html": {
             "libraryName": "diff2html",
             "asOfVersion": "3.0.0"
+        },
+        "dinero.js": {
+            "libraryName": "dinero.js",
+            "asOfVersion": "2.0.0"
         },
         "direction": {
             "libraryName": "direction",
@@ -2268,6 +2292,10 @@
         "feedme": {
             "libraryName": "feedme",
             "asOfVersion": "2.0.2"
+        },
+        "feedparser": {
+            "libraryName": "feedparser",
+            "asOfVersion": "2.3.0"
         },
         "feedsub": {
             "libraryName": "feedsub",
@@ -4125,6 +4153,10 @@
             "libraryName": "marked",
             "asOfVersion": "6.0.0"
         },
+        "mastercard-oauth1-signer": {
+            "libraryName": "mastercard-oauth1-signer",
+            "asOfVersion": "1.2.0"
+        },
         "match-sorter": {
             "libraryName": "match-sorter",
             "asOfVersion": "6.0.0"
@@ -4589,9 +4621,17 @@
             "libraryName": "mongoose-autopopulate",
             "asOfVersion": "0.16.0"
         },
+        "mongoose-geojson-schema": {
+            "libraryName": "mongoose-geojson-schema",
+            "asOfVersion": "3.0.0"
+        },
         "mongoose-paginate-v2": {
             "libraryName": "mongoose-paginate-v2",
             "asOfVersion": "1.6.0"
+        },
+        "mongoose-unique-validator": {
+            "libraryName": "mongoose-unique-validator",
+            "asOfVersion": "6.1.0"
         },
         "monk": {
             "libraryName": "monk",
@@ -4789,6 +4829,10 @@
             "libraryName": "node-mailjet",
             "asOfVersion": "4.0.0"
         },
+        "node-osc": {
+            "libraryName": "node-osc",
+            "asOfVersion": "11.2.0"
+        },
         "node-pg-migrate": {
             "libraryName": "node-pg-migrate",
             "asOfVersion": "2.15.0"
@@ -4964,6 +5008,10 @@
         "openpgp": {
             "libraryName": "openpgp",
             "asOfVersion": "5.0.0"
+        },
+        "openseadragon": {
+            "libraryName": "openseadragon",
+            "asOfVersion": "6.0.0"
         },
         "opn": {
             "libraryName": "opn",
@@ -6439,6 +6487,10 @@
             "libraryName": "react-query",
             "asOfVersion": "1.2.8"
         },
+        "react-resizable": {
+            "libraryName": "react-resizable",
+            "asOfVersion": "4.0.0"
+        },
         "react-resize-detector": {
             "libraryName": "react-resize-detector",
             "asOfVersion": "6.1.0"
@@ -7691,6 +7743,10 @@
             "libraryName": "theming",
             "asOfVersion": "2.0.0"
         },
+        "through2": {
+            "libraryName": "through2",
+            "asOfVersion": "5.0.0"
+        },
         "tildify": {
             "libraryName": "tildify",
             "asOfVersion": "2.0.0"
@@ -8243,6 +8299,10 @@
             "libraryName": "@wordpress/block-serialization-default-parser",
             "asOfVersion": "4.17.0"
         },
+        "wordpress__blocks": {
+            "libraryName": "@wordpress/blocks",
+            "asOfVersion": "15.17.0"
+        },
         "wordpress__components": {
             "libraryName": "@wordpress/components",
             "asOfVersion": "23.8.0"
@@ -8343,6 +8403,10 @@
             "libraryName": "@wordpress/rich-text",
             "asOfVersion": "6.10.0"
         },
+        "wordpress__server-side-render": {
+            "libraryName": "@wordpress/server-side-render",
+            "asOfVersion": "6.24.1"
+        },
         "wordpress__shortcode": {
             "libraryName": "@wordpress/shortcode",
             "asOfVersion": "4.14.0"
@@ -8354,6 +8418,14 @@
         "wordpress__url": {
             "libraryName": "@wordpress/url",
             "asOfVersion": "2.14.0"
+        },
+        "wordpress__viewport": {
+            "libraryName": "@wordpress/viewport",
+            "asOfVersion": "6.44.0"
+        },
+        "wordpress__wordcount": {
+            "libraryName": "@wordpress/wordcount",
+            "asOfVersion": "4.32.0"
         },
         "words-to-numbers": {
             "libraryName": "words-to-numbers",

@@ -1,9 +1,11 @@
-// For Library Version: 1.144.0
+// For Library Version: 1.149.0
 
 declare module "sap/ui/fl/library" {}
 
 declare module "sap/ui/fl/apply/api/ControlVariantApplyAPI" {
   import ManagedObject from "sap/ui/base/ManagedObject";
+
+  import Control from "sap/ui/core/Control";
 
   /**
    * Provides an API for applications to work with control variants. See also {@link sap.ui.fl.variants.VariantManagement}.
@@ -106,6 +108,28 @@ declare module "sap/ui/fl/apply/api/ControlVariantApplyAPI" {
         vmControlId: string;
       }
     ): void;
+    /**
+     * Returns the current variant reference for a given variant management reference and control.
+     *
+     * @since 1.148
+     *
+     * @returns Current variant reference
+     */
+    getCurrentVariantReference(
+      /**
+       * Object with parameters as properties
+       */
+      mPropertyBag: {
+        /**
+         * Variant management reference
+         */
+        vmReference: string;
+        /**
+         * Control for the reference determination
+         */
+        control: Control;
+      }
+    ): string;
   }
   const ControlVariantApplyAPI: ControlVariantApplyAPI;
   export default ControlVariantApplyAPI;
@@ -1545,6 +1569,8 @@ declare namespace sap {
 
     "sap/ui/fl/apply/_internal/changes/descriptor/ovp/DeleteCard": undefined;
 
+    "sap/ui/fl/apply/_internal/changes/descriptor/platform/SetUI5VersionNumber": undefined;
+
     "sap/ui/fl/apply/_internal/changes/descriptor/Registration": undefined;
 
     "sap/ui/fl/apply/_internal/changes/descriptor/RegistrationBuild": undefined;
@@ -1661,6 +1687,8 @@ declare namespace sap {
 
     "sap/ui/fl/initial/_internal/connectors/Utils": undefined;
 
+    "sap/ui/fl/initial/_internal/FlexConfiguration": undefined;
+
     "sap/ui/fl/initial/_internal/preprocessors/ComponentLifecycleHooks": undefined;
 
     "sap/ui/fl/initial/_internal/preprocessors/ControllerExtension": undefined;
@@ -1668,6 +1696,8 @@ declare namespace sap {
     "sap/ui/fl/initial/_internal/Settings": undefined;
 
     "sap/ui/fl/initial/_internal/Storage": undefined;
+
+    "sap/ui/fl/initial/_internal/StorageFeaturesMerger": undefined;
 
     "sap/ui/fl/initial/_internal/StorageUtils": undefined;
 
@@ -1690,6 +1720,8 @@ declare namespace sap {
     "sap/ui/fl/support/api/SupportAPI": undefined;
 
     "sap/ui/fl/transport/TransportDialog": undefined;
+
+    "sap/ui/fl/util/CancelError": undefined;
 
     "sap/ui/fl/Utils": undefined;
 
@@ -1731,6 +1763,8 @@ declare namespace sap {
 
     "sap/ui/fl/write/_internal/connectors/SessionStorageConnector": undefined;
 
+    "sap/ui/fl/write/_internal/connectors/SupportLocalStorageConnector": undefined;
+
     "sap/ui/fl/write/_internal/connectors/Utils": undefined;
 
     "sap/ui/fl/write/_internal/fieldExtensibility/ABAPExtensibilityVariant": undefined;
@@ -1762,6 +1796,8 @@ declare namespace sap {
     "sap/ui/fl/write/api/ContextSharingAPI": undefined;
 
     "sap/ui/fl/write/api/ControlPersonalizationWriteAPI": undefined;
+
+    "sap/ui/fl/write/api/ControlVariantWriteAPI": undefined;
 
     "sap/ui/fl/write/api/FeaturesAPI": undefined;
 

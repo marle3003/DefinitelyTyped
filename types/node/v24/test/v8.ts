@@ -19,11 +19,9 @@ v8.takeCoverage();
 v8.stopCoverage();
 
 {
-    const profiler = new v8.GCProfiler();
+    using profiler = new v8.GCProfiler();
     profiler.start();
-    setTimeout(() => {
-        console.log(profiler.stop());
-    }, 1000);
+    profiler.stop();
 }
 
 const disable = v8.promiseHooks.createHook({
@@ -93,3 +91,9 @@ v8.deserialize(new ArrayBuffer(1));
 v8.deserialize("Hello World!");
 
 v8.isStringOneByteRepresentation("你好"); // $ExpectType boolean
+
+{
+    using profile: v8.SyncCPUProfileHandle = v8.startCpuProfile();
+    profile.stop(); // $ExpectType string
+    profile[Symbol.dispose](); // $ExpectType void
+}

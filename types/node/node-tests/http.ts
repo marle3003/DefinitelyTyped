@@ -225,6 +225,8 @@ import * as url from "node:url";
     incoming.pause();
     incoming.resume();
 
+    incoming.signal; // $ExpectType AbortSignal
+
     // response
     const res: http.ServerResponse = new http.ServerResponse(incoming);
 
@@ -724,6 +726,11 @@ import * as url from "node:url";
     http.validateHeaderValue("Location", "/");
 
     http.setMaxIdleHTTPParsers(1337);
+
+    // $ExpectType () => void
+    http.setGlobalProxyFromEnv();
+    // $ExpectType () => void
+    http.setGlobalProxyFromEnv(process.env);
 }
 
 {

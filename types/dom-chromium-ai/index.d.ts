@@ -44,6 +44,7 @@ interface DestroyableModel {
 declare abstract class LanguageModel extends EventTarget implements DestroyableModel {
     static create(options?: LanguageModelCreateOptions): Promise<LanguageModel>;
     static availability(options?: LanguageModelCreateCoreOptions): Promise<Availability>;
+    /** @deprecated Restricted to web extension contexts only. */
     static params(): Promise<LanguageModelParams>;
 
     prompt(input: LanguageModelPrompt, options?: LanguageModelPromptOptions): Promise<string>;
@@ -52,11 +53,20 @@ declare abstract class LanguageModel extends EventTarget implements DestroyableM
 
     append(input: LanguageModelPrompt, options?: LanguageModelAppendOptions): Promise<undefined>;
 
+    measureContextUsage(input: LanguageModelPrompt, options?: LanguageModelPromptOptions): Promise<number>;
+    /** @deprecated Use measureContextUsage instead. Deprecated in extensions, removed in web. */
     measureInputUsage(input: LanguageModelPrompt, options?: LanguageModelPromptOptions): Promise<number>;
 
+    readonly contextUsage: number;
+    /** @deprecated Use contextUsage instead. Deprecated in extensions, removed in web. */
     readonly inputUsage: number;
+
+    readonly contextWindow: number;
+    /** @deprecated Use contextWindow instead. Deprecated in extensions, removed in web. */
     readonly inputQuota: number;
 
+    oncontextoverflow: ((this: LanguageModel, ev: Event) => any) | null;
+    /** @deprecated Use oncontextoverflow instead. Deprecated in extensions, removed in web. */
     onquotaoverflow: ((this: LanguageModel, ev: Event) => any) | null;
 
     addEventListener<K extends keyof LanguageModelEventMap>(
@@ -80,7 +90,9 @@ declare abstract class LanguageModel extends EventTarget implements DestroyableM
         options?: boolean | EventListenerOptions,
     ): void;
 
+    /** @deprecated Restricted to web extension contexts only. */
     readonly topK: number;
+    /** @deprecated Restricted to web extension contexts only. */
     readonly temperature: number;
 
     clone(options?: LanguageModelCloneOptions): Promise<LanguageModel>;
@@ -88,33 +100,58 @@ declare abstract class LanguageModel extends EventTarget implements DestroyableM
 }
 
 interface LanguageModelEventMap {
+    contextoverflow: Event;
+    /** @deprecated Use contextoverflow instead. Deprecated in extensions, removed in web. */
     quotaoverflow: Event;
 }
 
 interface LanguageModelParams {
+    /** @deprecated Restricted to web extension contexts only. */
     readonly defaultTopK: number;
+    /** @deprecated Restricted to web extension contexts only. */
     readonly maxTopK: number;
+    /** @deprecated Restricted to web extension contexts only. */
     readonly defaultTemperature: number;
+    /** @deprecated Restricted to web extension contexts only. */
     readonly maxTemperature: number;
 }
 
-interface LanguageModelCreateCoreOptions {
-    topK?: number;
-    temperature?: number;
+type LanguageModelSamplingMode =
+    | "most-predictable"
+    | "predictable"
+    | "balanced"
+    | "creative"
+    | "most-creative";
 
+/**
+ * samplingMode and the raw sampling params (topK, temperature) are mutually exclusive.
+ * Providing both results in a TypeError at runtime.
+ * Note: topK and temperature are only available in Chrome extension contexts (Chrome 151+).
+ */
+type LanguageModelSamplingOptions =
+    | { samplingMode?: LanguageModelSamplingMode; topK?: never; temperature?: never }
+    | {
+        samplingMode?: never;
+        /** @deprecated Restricted to web extension contexts only. */
+        topK?: number;
+        /** @deprecated Restricted to web extension contexts only. */
+        temperature?: number;
+    };
+
+type LanguageModelCreateCoreOptions = {
     expectedInputs?: LanguageModelExpected[];
     expectedOutputs?: LanguageModelExpected[];
     tools?: LanguageModelTool[];
-}
+} & LanguageModelSamplingOptions;
 
-interface LanguageModelCreateOptions extends LanguageModelCreateCoreOptions {
+type LanguageModelCreateOptions = LanguageModelCreateCoreOptions & {
     signal?: AbortSignal;
     monitor?: CreateMonitorCallback;
 
     initialPrompts?:
         | [LanguageModelSystemMessage, ...LanguageModelMessage[]]
         | LanguageModelMessage[];
-}
+};
 
 interface LanguageModelPromptOptions {
     responseConstraint?: Record<string, unknown>;
@@ -184,6 +221,8 @@ type LanguageModelMessageValue = ImageBitmapSource | AudioBuffer | BufferSource 
 // Writing Assistance APIs
 // https://webmachinelearning.github.io/writing-assistance-apis/#idl-index
 
+type PerformancePreference = "auto" | "speed" | "capability";
+
 declare abstract class Summarizer implements DestroyableModel {
     static create(options?: SummarizerCreateOptions): Promise<Summarizer>;
     static availability(options?: SummarizerCreateCoreOptions): Promise<Availability>;
@@ -211,6 +250,7 @@ interface SummarizerCreateCoreOptions {
     type?: SummarizerType;
     format?: SummarizerFormat;
     length?: SummarizerLength;
+    preference?: PerformancePreference;
 
     expectedInputLanguages?: ReadonlyArray<string>;
     expectedContextLanguages?: ReadonlyArray<string>;

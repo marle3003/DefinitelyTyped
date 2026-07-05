@@ -193,7 +193,7 @@ declare namespace formidable {
          */
         filename?: (name: string, ext: string, part: Part, form: Formidable) => string;
 
-        enabledPlugins?: string[] | undefined;
+        enabledPlugins?: formidable.PluginFunction[] | undefined;
 
         filter?: (part: Part) => boolean;
     }
@@ -309,6 +309,8 @@ declare namespace formidable {
     type EnabledPlugins = {
         [P in Plugin]: PluginFunction;
     };
+
+    type FormidableError = InstanceType<typeof errors.default>;
 }
 
 declare const formidable: {

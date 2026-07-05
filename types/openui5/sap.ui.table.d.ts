@@ -1,4 +1,4 @@
-// For Library Version: 1.144.0
+// For Library Version: 1.149.0
 
 declare module "sap/ui/table/library" {
   import TreeAutoExpandMode1 from "sap/ui/model/TreeAutoExpandMode";
@@ -88,15 +88,15 @@ declare module "sap/ui/table/library" {
    */
   export enum RowActionType {
     /**
-     * Custom defined Row Action.
+     * Custom-defined row action
      */
     Custom = "Custom",
     /**
-     * Delete Row Action.
+     * Row action for deletion
      */
     Delete = "Delete",
     /**
-     * Navigation Row Action.
+     * Navigation arrow (chevron) is shown
      */
     Navigation = "Navigation",
   }
@@ -608,6 +608,8 @@ declare module "sap/ui/table/AnalyticalTable" {
     Table$GroupEventParameters,
   } from "sap/ui/table/Table";
 
+  import AnalyticalColumn from "sap/ui/table/AnalyticalColumn";
+
   import { ID } from "sap/ui/core/library";
 
   import ElementMetadata from "sap/ui/core/ElementMetadata";
@@ -903,6 +905,10 @@ declare module "sap/ui/table/AnalyticalTable" {
      * @returns Value of property `collapseRecursive`
      */
     getCollapseRecursive(): boolean;
+    /**
+     * Returns the Columns of the AnalyticalTable.
+     */
+    getColumns(): AnalyticalColumn[];
     /**
      * Gets current value of property {@link #getColumnVisibilityMenuSorter columnVisibilityMenuSorter}.
      *
@@ -3668,6 +3674,9 @@ declare module "sap/ui/table/plugins/ODataV4Aggregation" {
      * row and the group level property path according to `groupLevels` in {@link sap.ui.model.odata.v4.ODataListBinding#setAggregation}).
      * The function must return a string that is used as the title of the group header row.
      *
+     * **Note:** Setting a new formatter does not immediately update the group header titles. The titles are
+     * updated at the next binding update.
+     *
      * Function signature: `groupHeaderFormatter(oContext: sap.ui.model.odata.v4.Context, sPropertyPath: string):
      * string`
      *
@@ -3702,6 +3711,9 @@ declare module "sap/ui/table/plugins/ODataV4Aggregation" {
      * row and the group level property path according to `groupLevels` in {@link sap.ui.model.odata.v4.ODataListBinding#setAggregation}).
      * The function must return a string that is used as the title of the group header row.
      *
+     * **Note:** Setting a new formatter does not immediately update the group header titles. The titles are
+     * updated at the next binding update.
+     *
      * Function signature: `groupHeaderFormatter(oContext: sap.ui.model.odata.v4.Context, sPropertyPath: string):
      * string`
      *
@@ -3732,6 +3744,9 @@ declare module "sap/ui/table/plugins/ODataV4Aggregation" {
      * This function is called for each group header row in the table. It receives the binding context of the
      * row and the group level property path according to `groupLevels` in {@link sap.ui.model.odata.v4.ODataListBinding#setAggregation}).
      * The function must return a string that is used as the title of the group header row.
+     *
+     * **Note:** Setting a new formatter does not immediately update the group header titles. The titles are
+     * updated at the next binding update.
      *
      * Function signature: `groupHeaderFormatter(oContext: sap.ui.model.odata.v4.Context, sPropertyPath: string):
      * string`

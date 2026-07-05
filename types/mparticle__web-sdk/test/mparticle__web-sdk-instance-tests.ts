@@ -26,7 +26,18 @@ const customFlags: mParticle.SDKEventCustomFlags = {
 
 const eventOptions: mParticle.SDKEventOptions = {
     shouldUploadEvent: false,
+    sourceMessageId: "sourceMessageId",
 };
+
+const eventOptionsOnlyShouldUpload: mParticle.SDKEventOptions = {
+    shouldUploadEvent: true,
+};
+
+const eventOptionsOnlySourceMessageId: mParticle.SDKEventOptions = {
+    sourceMessageId: "test-message-id",
+};
+
+const eventOptionsEmpty: mParticle.SDKEventOptions = {};
 
 const identifyRequest: mParticle.IdentifyRequest = {
     userIdentities: {
@@ -178,6 +189,9 @@ instance.logEvent("eventName", instance.EventType.Location);
 instance.logEvent("eventName", instance.EventType.Location, customAttrs);
 instance.logEvent("eventName", instance.EventType.Location, customAttrs, customFlags);
 instance.logEvent("eventName", mParticle.EventType.Location, customAttrs, customFlags, eventOptions);
+instance.logEvent("eventName", mParticle.EventType.Location, customAttrs, customFlags, eventOptionsOnlyShouldUpload);
+instance.logEvent("eventName", mParticle.EventType.Location, customAttrs, customFlags, eventOptionsOnlySourceMessageId);
+instance.logEvent("eventName", mParticle.EventType.Location, customAttrs, customFlags, eventOptionsEmpty);
 
 instance.logForm("click", "eventName");
 instance.logForm("click", "eventName", instance.EventType.Location);
@@ -482,6 +496,8 @@ const identifyIdentities: mParticle.IdentifyRequest = {
         twitter: "email",
         microsoft: "email",
         yahoo: "email",
+        email_sha256: "email",
+        mobile_sha256: "email",
     },
 };
 
@@ -808,6 +824,10 @@ mParticle.Rokt.hashAttributes({
 mParticle.Rokt.setExtensionData({
     "analytics": { sessionId: "abc123" },
     "personalization": { variant: "A" },
+});
+
+mParticle.Rokt.onShoppableAdsReady(() => {
+    console.log("Shoppable ads ready");
 });
 
 // Test with identifier

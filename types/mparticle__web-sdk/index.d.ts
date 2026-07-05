@@ -155,7 +155,8 @@ export interface SDKEventCustomFlags {
 }
 
 export interface SDKEventOptions {
-    shouldUploadEvent: boolean;
+    shouldUploadEvent?: boolean;
+    sourceMessageId?: string;
 }
 
 export interface DataPlanConfig {
@@ -434,6 +435,10 @@ interface SetExtensionData {
     (extensionData: RoktPartnerExtensionData<unknown>): void;
 }
 
+interface OnShoppableAdsReady {
+    (callback: () => void): void;
+}
+
 export const endSession: EndSession;
 export const getAppName: GetAppName;
 export const getAppVersion: GetAppVersion;
@@ -626,6 +631,7 @@ export namespace Rokt {
     const hashSha256: HashSha256;
     const setExtensionData: SetExtensionData;
     const use: Use;
+    const onShoppableAdsReady: OnShoppableAdsReady;
 }
 
 export interface IdentifyRequest {
@@ -680,6 +686,8 @@ export interface UserIdentities {
     twitter?: string | null;
     microsoft?: string | null;
     yahoo?: string | null;
+    email_sha256?: string | null;
+    mobile_sha256?: string | null;
 }
 
 interface Cart {
@@ -902,6 +910,7 @@ declare class mParticleInstance {
         hashSha256: HashSha256;
         setExtensionData: SetExtensionData;
         use: Use;
+        onShoppableAdsReady: OnShoppableAdsReady;
     };
     MPSideloadedKit: typeof MPSideloadedKit;
     PromotionType: {

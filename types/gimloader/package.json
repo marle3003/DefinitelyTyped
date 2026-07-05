@@ -1,8 +1,8 @@
 {
     "private": true,
     "name": "@types/gimloader",
-    "version": "1.11.9999",
-    "nonNpm": "conflict",
+    "version": "1.12.9999",
+    "nonNpm": true,
     "nonNpmDescription": "Types for the Gimloader global variables",
     "projects": [
         "https://github.com/Gimloader/Gimloader#readme"

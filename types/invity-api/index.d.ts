@@ -27,45 +27,75 @@ export interface FormResponse {
 
 export type CryptoId = Brand<string, "CryptoId">;
 
-export type FiatCurrencyCode =
-    | "usd"
-    | "eur"
-    | "gbp"
-    | "aed"
-    | "ars"
-    | "aud"
-    | "bdt"
-    | "brl"
-    | "cad"
-    | "chf"
-    | "clp"
-    | "cny"
-    | "czk"
-    | "dkk"
-    | "hkd"
-    | "huf"
-    | "idr"
-    | "ils"
-    | "inr"
-    | "jpy"
-    | "krw"
-    | "kwd"
-    | "lkr"
-    | "mxn"
-    | "myr"
-    | "nok"
-    | "nzd"
-    | "php"
-    | "pln"
-    | "rub"
-    | "sar"
-    | "sek"
-    | "sgd"
-    | "thb"
-    | "try"
-    | "twd"
-    | "vnd"
-    | "zar";
+export const FIAT_CURRENCIES: readonly [
+    "aed",
+    "amd",
+    "ars",
+    "aud",
+    "azn",
+    "bdt",
+    "bgn",
+    "bhd",
+    "brl",
+    "cad",
+    "chf",
+    "clp",
+    "cny",
+    "cop",
+    "crc",
+    "czk",
+    "dkk",
+    "dop",
+    "dzd",
+    "egp",
+    "eur",
+    "gbp",
+    "gel",
+    "ghs",
+    "hkd",
+    "huf",
+    "idr",
+    "ils",
+    "inr",
+    "isk",
+    "jod",
+    "jpy",
+    "kes",
+    "krw",
+    "kwd",
+    "kzt",
+    "lkr",
+    "mad",
+    "mxn",
+    "myr",
+    "ngn",
+    "nok",
+    "nzd",
+    "omr",
+    "pen",
+    "php",
+    "pln",
+    "qar",
+    "ron",
+    "rub",
+    "sar",
+    "sek",
+    "sgd",
+    "thb",
+    "tnd",
+    "try",
+    "twd",
+    "tzs",
+    "uah",
+    "ugx",
+    "usd",
+    "uyu",
+    "vnd",
+    "xaf",
+    "xof",
+    "zar",
+];
+export type FiatCurrencyCode = (typeof FIAT_CURRENCIES)[number];
 
 export type FiatCurrenciesProps = Record<FiatCurrencyCode, number>;
 
@@ -98,6 +128,71 @@ export interface BuySellProviderMetadata extends ProviderMetadata {
     supportedSubdivisions: Subdivisions; // { 'US': ['AL', 'NY', 'WA'] }
     tradedCoins: CryptoId[]; // ['BTC', 'BCH', 'LTC', 'XRP', 'ETH', 'bitcoin', 'ethereum', 'litecoin', 'ethereum--0xdac17f958d2ee523a2206206994597c13d831ec7']
     disabledSubdivisions?: Subdivisions;
+}
+
+export interface TradeCommon {
+    statusUrl?: string | null; // URL with ID assigned to the trade by the provider to check status; if null, do not show any status url
+}
+
+export type DomainEntity =
+    | "partner"
+    | "country"
+    | "subdivision"
+    | "token"
+    | "payment-method"
+    | "client-restriction"
+    | "network"
+    | "info-note"
+    | "experiment"
+    | "otc-link"
+    | "staff"
+    | "app"
+    | "service"
+    | "version";
+
+export const ERROR_CODES: readonly [
+    "unavailable",
+    "invalid_address",
+    "invalid_amount",
+    "invalid_input",
+    "invalid_pair",
+    "invalid_response",
+    "no_response",
+    "trade_not_found",
+    "trade_expired",
+    "trade_failed",
+    "trade_refunded",
+    "unknown",
+];
+export type ErrorCode = (typeof ERROR_CODES)[number];
+
+export const ERROR_ORIGINS: readonly ["internal", "external", "partner"];
+export type ErrorOrigin = (typeof ERROR_ORIGINS)[number];
+
+export type TradeErrorDetailsMap = {
+    [C in ErrorCode]: C extends "unavailable"
+        ? { code: C; entity?: { type: DomainEntity; value: string }; reason?: string }
+        : C extends "invalid_address" ? { code: C; address?: { key: string; value?: string } }
+        : C extends "invalid_amount" ? { code: C; amount?: { key: string; value: string; min?: string; max?: string } }
+        : C extends "invalid_input" ? { code: C; inputs?: string[] }
+        : C extends "invalid_pair" ? { code: C; pair?: { send: string; receive: string } }
+        : C extends "invalid_response" ? { code: C; errors?: string[] }
+        : C extends "no_response" ? { code: C }
+        : C extends "trade_not_found" ? { code: C; id?: string }
+        : C extends "trade_expired" | "trade_failed" | "trade_refunded" ? { code: C; orderId?: string }
+        : { code: C }; // unknown
+};
+export interface TradeErrorDetailsBase {
+    origin: ErrorOrigin; // who trade error conceptually belongs to
+    externalCode?: string;
+    message?: string;
+}
+export type TradeErrorCodeSpecificData = TradeErrorDetailsMap[ErrorCode];
+export type TradeErrorDetails = TradeErrorDetailsBase & TradeErrorCodeSpecificData;
+
+export interface TradeError {
+    error: string; // formatted error message
+    errorDetails?: TradeErrorDetails;
 }
 
 // buy types
@@ -139,7 +234,39 @@ export type BuyCryptoPaymentMethod =
     | "viettelpay"
     | "duitnow"
     | "payid"
-    | "toss";
+    | "toss"
+    | "sepa"
+    | "trustly"
+    | "astropay"
+    | "skrill"
+    | "neteller"
+    | "ach"
+    | "instantAch"
+    | "revolutPay"
+    | "pix"
+    | "paypal"
+    | "mpesa"
+    | "spei"
+    | "fpx"
+    | "grapPay"
+    | "shopeePay"
+    | "touchNGo"
+    | "boost"
+    | "qrph"
+    | "qrphGCash"
+    | "qrphMaya"
+    | "qrphPesonet"
+    | "qrphGrabPay"
+    | "qrphInstaPay"
+    | "fasterPayment"
+    | "openBanking"
+    | "khipu"
+    | "pse"
+    | "flutterwave"
+    | "venmo"
+    | "multibanco"
+    | "klarna"
+    | "blik";
 
 export type BuyTradeTag =
     | "renewed"
@@ -160,6 +287,7 @@ export interface BuyProviderInfo extends BuySellProviderMetadata {
 
 export interface BuyListResponse {
     country: string;
+    subdivision?: string;
     suggestedFiatCurrency?: string | undefined; // optional field, fiat currency based on user's IP
     providers: BuyProviderInfo[];
     defaultAmountsOfFiatCurrencies: FiatCurrenciesProps;
@@ -176,11 +304,12 @@ export interface BuyTradeQuoteRequest {
     country?: string | undefined;
     subdivision?: string | undefined;
     paymentMethod?: BuyCryptoPaymentMethod | undefined;
+    receiveAddress?: string;
 }
 
 export type BuyTradeQuoteResponse = BuyTrade[];
 
-export interface BuyTrade {
+export interface BuyTrade extends TradeCommon {
     fiatAmount?: number | undefined; // 1000 - DEPRECATED, used only for TREZOR
     fiatStringAmount?: string | undefined; // 1000 - will pay fiat amount
     fiatCurrency?: string | undefined; // EUR
@@ -294,7 +423,7 @@ export type DexApprovalType =
     | "ZERO" // resets approval
     | "PRESET"; // PRESET takes value from approvalStringAmount
 
-export interface ExchangeTrade {
+export type ExchangeTrade = TradeCommon & Partial<TradeError> & {
     send?: CryptoId | undefined; // bitcoin
 
     sendStringAmount?: string | undefined; // "0.01"
@@ -314,9 +443,7 @@ export interface ExchangeTrade {
     signature?: string | undefined; // Evercoin only, passed from createTrade response to confirmTrade request
     orderId?: string | undefined; // internal ID assigned to the trade by the exchange
     quoteId?: string | undefined;
-    statusUrl?: string | undefined; // internal URL + ID assigned to the trade by the exchange to check status
     status?: ExchangeTradeStatus | undefined; // state of trade after confirmTrade
-    error?: string | undefined; // something went wrong after confirmTrade
     receiveTxHash?: string | undefined; // hash of tx from exchange to user or DEX swap
     cid?: string | undefined; // google clientID
     offerReferenceId?: string | undefined; // coinswitch only
@@ -354,7 +481,7 @@ export interface ExchangeTrade {
     // locally used fields
     offerType?: "bestRate" | "favorite" | undefined;
     tradeForm?: FormResponse;
-}
+};
 
 export interface ExchangeTradeSigned extends ExchangeTrade {
     /** SLIP24: Nonce for payment request signature */
@@ -393,14 +520,13 @@ export interface ConfirmExchangeTradeRequest {
     returnUrl?: string; // URL where to return after the trade is done
 }
 
-export interface WatchExchangeTradeResponse {
+export interface WatchExchangeTradeResponse extends Partial<TradeError> {
     status?: ExchangeTradeStatus | undefined; // state of trade after confirmTrade
     sendAddress?: string; // exchange address for send tx
     partnerPaymentExtraId?: string; // Extra ID for payments to exchange for networks that require it (destinationTag)
     receiveTxHash?: string | undefined;
     rate?: number | undefined;
     receiveStringAmount?: string | undefined; // "0.01"
-    error?: string | undefined; // something went wrong after confirmTrade
 }
 
 // utilityTypes
@@ -456,6 +582,14 @@ export interface Platforms {
 export interface InfoResponse {
     platforms: Platforms;
     coins: Coins;
+    config: {
+        btcSwapDummyData?: {
+            opreturn: {
+                dataHex: string;
+            };
+            feePercentage: number;
+        };
+    };
 }
 
 // sell/voucher types
@@ -494,10 +628,21 @@ export interface SellProviderInfo extends BuySellProviderMetadata {
 
 export interface SellListResponse {
     country: string;
+    subdivision?: string;
     providers: SellProviderInfo[];
 }
 
-export type SellCryptoPaymentMethod = "bankTransfer" | "creditCard";
+export type SellCryptoPaymentMethod =
+    | "bankTransfer"
+    | "creditCard"
+    | "sepa"
+    | "ach"
+    | "skrill"
+    | "neteller"
+    | "payid"
+    | "dcinterac"
+    | "fasterPayment"
+    | "pix";
 
 export type SellTradeTag = "renewed" | "alternativeCurrency" | "bestRate" | "favorite" | "wantFiat" | "widget";
 
@@ -515,7 +660,7 @@ export interface SellFiatTradeQuoteRequest {
 
 export type SellFiatTradeQuoteResponse = SellFiatTrade[];
 
-export interface SellFiatTrade {
+export interface SellFiatTrade extends TradeCommon {
     amountInCrypto?: boolean | undefined; // true for cryptoAmount, false for fiatAmount
     fiatStringAmount?: string | undefined; // 1000
     fiatCurrency?: string | undefined; // EUR

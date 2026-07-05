@@ -11,6 +11,22 @@ async function topLevel() {
         initialPrompts: [{ role: "assistant", content: "foo", prefix: true }],
     });
 
+    // samplingMode is valid on its own
+    await LanguageModel.create({ samplingMode: "most-creative" });
+    await LanguageModel.create({ samplingMode: "balanced" });
+
+    await LanguageModel.create({
+        samplingMode: "balanced",
+        // @ts-expect-error - samplingMode and topK/temperature are mutually exclusive.
+        topK: 1,
+    });
+
+    await LanguageModel.create({
+        samplingMode: "balanced",
+        // @ts-expect-error - samplingMode and topK/temperature are mutually exclusive.
+        temperature: 0.5,
+    });
+
     const languageModel = await LanguageModel.create({
         topK: 1,
         temperature: 0,
@@ -122,36 +138,47 @@ async function topLevel() {
     await languageModel.append("foo", { signal: (new AbortController()).signal });
     await languageModel.append([{ role: "assistant", content: "foo" }], { signal: (new AbortController()).signal });
 
-    const languageModelInputUsage1: number = await languageModel.measureInputUsage("foo", {
+    const languageModelContextUsage1: number = await languageModel.measureContextUsage("foo", {
         signal: (new AbortController()).signal,
     });
-    console.log(languageModelInputUsage1);
+    console.log(languageModelContextUsage1);
 
-    const languageModelInputUsage2: number = await languageModel.measureInputUsage([{
+    const languageModelContextUsage2: number = await languageModel.measureContextUsage([{
         role: "assistant",
         content: "foo",
     }], {
         signal: (new AbortController()).signal,
     });
-    console.log(languageModelInputUsage2);
+    console.log(languageModelContextUsage2);
 
-    const languageModelInputUsage3: number = await languageModel.measureInputUsage([
+    const languageModelContextUsage3: number = await languageModel.measureContextUsage([
         { role: "assistant", content: "foo" },
         { role: "user", content: "bar" },
     ], { signal: (new AbortController()).signal });
-    console.log(languageModelInputUsage3);
+    console.log(languageModelContextUsage3);
 
+    console.log(
+        languageModel.contextUsage,
+        languageModel.contextWindow,
+    );
+
+    // Legacy names (Deprecated in extensions, removed in web)
     console.log(
         languageModel.inputUsage,
         languageModel.inputQuota,
     );
 
-    const quotaOverflowListener = (e: Event) => {
+    const contextOverflowListener = (e: Event) => {
         console.log(e);
     };
-    languageModel.onquotaoverflow = quotaOverflowListener;
-    languageModel.addEventListener("quotaoverflow", quotaOverflowListener);
-    languageModel.removeEventListener("quotaoverflow", quotaOverflowListener);
+    languageModel.oncontextoverflow = contextOverflowListener;
+    languageModel.addEventListener("contextoverflow", contextOverflowListener);
+    languageModel.removeEventListener("contextoverflow", contextOverflowListener);
+
+    // Legacy (Deprecated in extensions, removed in web)
+    languageModel.onquotaoverflow = contextOverflowListener;
+    languageModel.addEventListener("quotaoverflow", contextOverflowListener);
+    languageModel.removeEventListener("quotaoverflow", contextOverflowListener);
 
     console.log(
         languageModel.topK,
@@ -175,6 +202,7 @@ async function topLevel() {
         expectedInputLanguages: ["en"],
         expectedContextLanguages: ["en"],
         outputLanguage: "en",
+        preference: "auto",
         sharedContext: "foo",
         signal: (new AbortController()).signal,
         monitor(m: CreateMonitor) {

@@ -1,16 +1,26 @@
 import {
+    Adapter,
+    BrowserAdapter,
     cache,
     config,
     connectStreamSource,
     disconnectStreamSource,
     navigator,
+    NavigatorDelegate,
+    ProgressBar,
+    registerAdapter,
     renderStreamMessage,
     session,
     start,
     StreamActions,
     StreamMessage,
     StreamSource,
+    TurboHistory,
+    TurboStreamAction,
+    TurboStreamActions,
+    Visit,
     visit,
+    VisitOptions,
 } from "@hotwired/turbo";
 
 const turboFrame = document.querySelector("turbo-frame")!;
@@ -31,6 +41,16 @@ turboFrame.loading = "lazy";
 turboFrame.loading = "slow";
 
 turboFrame.reload().catch(console.error);
+
+// $ExpectType string | null
+turboFrame.src;
+turboFrame.src = "/messages";
+turboFrame.src = null;
+
+// $ExpectType "morph" | null
+turboFrame.refresh;
+turboFrame.refresh = "morph";
+turboFrame.refresh = null;
 
 const turboStream = document.querySelector("turbo-stream")!;
 
@@ -94,6 +114,27 @@ StreamActions.log = function() {
     console.log(this.getAttribute("message"));
 };
 
+// Test TurboStreamActions / TurboStreamAction exports
+// $ExpectType TurboStreamActions
+StreamActions;
+
+const customStreamAction: TurboStreamAction = function() {
+    // $ExpectType StreamElement
+    this;
+};
+StreamActions.custom = customStreamAction;
+
+const allStreamActions: TurboStreamActions = StreamActions;
+allStreamActions.log;
+
+document.addEventListener("turbo:before-fetch-request", function(event) {
+    // $ExpectType FetchRequestHeaders
+    const headers = event.detail.fetchOptions.headers;
+    headers["Turbo-Referrer"] = window.location.href;
+    // $ExpectType string | undefined
+    headers.Accept;
+});
+
 document.addEventListener("turbo:before-fetch-response", function(e) {
     let { fetchResponse } = e.detail;
     fetchResponse.header("foo");
@@ -106,6 +147,13 @@ document.addEventListener("turbo:before-render", function(e) {
         // $ExpectType HTMLBodyElement
         newElement;
     };
+    // $ExpectType (value?: unknown) => void
+    e.detail.resume;
+});
+
+document.addEventListener("turbo:before-frame-render", function(e) {
+    // $ExpectType (value?: unknown) => void
+    e.detail.resume;
 });
 
 document.addEventListener("turbo:frame-missing", function(event) {
@@ -128,17 +176,38 @@ document.addEventListener("turbo:submit-end", function(event) {
     }
 });
 
+document.addEventListener("turbo:before-morph-attribute", function(event) {
+    // $ExpectType string
+    event.detail.attributeName;
+    // $ExpectType "update" | "remove"
+    event.detail.mutationType;
+});
+
 // Test start() function
 start();
+
+const customAdapter: Adapter = {
+    visitProposedToLocation(_location: URL, _options?: VisitOptions): void {},
+    visitStarted(_visit: Visit): void {},
+    visitCompleted(_visit: Visit): void {},
+    visitFailed(_visit: Visit): void {},
+    visitRequestStarted(_visit: Visit): void {},
+    visitRequestCompleted(_visit: Visit): void {},
+    visitRequestFailedWithStatusCode(_visit: Visit, _statusCode: number): void {},
+    visitRequestFinished(_visit: Visit): void {},
+    visitRendered(_visit: Visit): void {},
+    pageInvalidated(_reason: { reason: string }): void {},
+};
+registerAdapter(customAdapter);
+Turbo.registerAdapter(customAdapter);
+
 Turbo.start();
 
 // Test session.adapter
-// $ExpectType BrowserAdapter
+// $ExpectType Adapter
 session.adapter;
-session.adapter.formSubmissionStarted();
-session.adapter.formSubmissionFinished();
-Turbo.session.adapter.formSubmissionStarted();
-Turbo.session.adapter.formSubmissionFinished();
+// $ExpectType Adapter
+Turbo.session.adapter;
 
 // Test navigator.submitForm
 const form = document.querySelector("form")!;
@@ -146,6 +215,26 @@ navigator.submitForm(form);
 navigator.submitForm(form, document.querySelector("button")!);
 Turbo.navigator.submitForm(form);
 Turbo.navigator.submitForm(form, document.querySelector("button")!);
+
+// Test navigator.delegate
+// $ExpectType NavigatorDelegate
+navigator.delegate;
+// $ExpectType Adapter
+navigator.delegate.adapter;
+
+// Test ProgressBar via BrowserAdapter cast
+const browserAdapter = navigator.delegate.adapter as BrowserAdapter;
+// $ExpectType ProgressBar
+browserAdapter.progressBar;
+browserAdapter.progressBar.setValue(0);
+browserAdapter.progressBar.show();
+browserAdapter.progressBar.hide();
+// $ExpectType number
+browserAdapter.progressBar.value;
+// $ExpectType boolean
+browserAdapter.progressBar.visible;
+// $ExpectType boolean
+browserAdapter.progressBar.hiding;
 
 // Test cache methods
 cache.clear();
@@ -208,6 +297,12 @@ turboStream.templateElement = document.createElement("template");
 // @ts-expect-error - templateContent is readonly
 turboStream.templateContent = document.createDocumentFragment();
 
+// Test StreamElement.targetElements
+// $ExpectType Element[]
+turboStream.targetElements;
+// @ts-expect-error - targetElements is readonly
+turboStream.targetElements = [];
+
 const eventSource = new EventSource("https://example.com/stream");
 const webSocket = new WebSocket("wss://example.com/stream");
 
@@ -233,3 +328,29 @@ StreamMessage.contentType;
 
 // $ExpectType StreamMessage
 StreamMessage.wrap("<turbo-stream></turbo-stream>");
+
+// Test TurboHistory via session.history
+// $ExpectType TurboHistory
+session.history;
+// $ExpectType TurboHistory
+Turbo.session.history;
+
+session.history.push(new URL("https://example.com"));
+session.history.push(new URL("https://example.com"), "abc-123");
+session.history.replace(new URL("https://example.com"));
+session.history.replace(new URL("https://example.com"), "abc-123");
+
+// $ExpectType URL
+session.history.location;
+// $ExpectType string
+session.history.restorationIdentifier;
+
+// Test session getters
+// $ExpectType URL
+session.location;
+// $ExpectType string
+session.restorationIdentifier;
+// $ExpectType boolean
+session.started;
+// $ExpectType boolean
+session.enabled;

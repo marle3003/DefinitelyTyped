@@ -1,5 +1,6 @@
 export class FrameElement extends HTMLElement {
-    src: string;
+    src: string | null;
+    refresh: "morph" | null;
     disabled: boolean;
     loading: "eager" | "lazy";
     loaded: Promise<void>;
@@ -51,6 +52,13 @@ export class StreamElement extends HTMLElement {
      * Gets a cloned copy of the template's content.
      */
     readonly templateContent: DocumentFragment;
+
+    /**
+     * Gets the list of elements the stream action will be applied to,
+     * resolved from the `target` (an element ID) or `targets` (a CSS
+     * selector) attribute.
+     */
+    readonly targetElements: Element[];
 }
 
 export class StreamSourceElement extends HTMLElement {
@@ -78,11 +86,15 @@ export class StreamMessage {
     constructor(fragment: DocumentFragment);
 }
 
+export interface FetchRequestHeaders {
+    [header: string]: string | undefined;
+}
+
 export class FetchRequest {
     body: FormData | URLSearchParams;
     enctype: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
     fetchOptions: RequestInit;
-    headers: Headers | { [k: string]: any };
+    headers: FetchRequestHeaders;
     method: "get" | "post" | "put" | "patch" | "delete";
     params: URLSearchParams;
     target: HTMLFormElement | HTMLAnchorElement | FrameElement | null;
@@ -105,13 +117,62 @@ export class FetchResponse {
     succeeded: boolean;
 }
 
+export interface Visit {
+    readonly action: Action;
+    readonly location: URL;
+    hasCachedSnapshot(): boolean;
+    complete(): void;
+    cancel(): void;
+}
+
+export interface Adapter {
+    visitProposedToLocation(location: URL, options?: VisitOptions): void;
+    visitStarted(visit: Visit): void;
+    visitCompleted(visit: Visit): void;
+    visitFailed(visit: Visit): void;
+    visitRequestStarted(visit: Visit): void;
+    visitRequestCompleted(visit: Visit): void;
+    visitRequestFailedWithStatusCode(visit: Visit, statusCode: number): void;
+    visitRequestFinished(visit: Visit): void;
+    visitRendered(visit: Visit): void;
+    pageInvalidated(reason: { reason: string }): void;
+    formSubmissionStarted?(formSubmission: FormSubmission): void;
+    formSubmissionFinished?(formSubmission: FormSubmission): void;
+    linkPrefetchingIsEnabledForLocation?(location: URL): boolean;
+}
+
+export class BrowserAdapter implements Adapter {
+    progressBar: ProgressBar;
+    visitProposedToLocation(location: URL, options?: VisitOptions): void;
+    visitStarted(visit: Visit): void;
+    visitCompleted(visit: Visit): void;
+    visitFailed(visit: Visit): void;
+    visitRequestStarted(visit: Visit): void;
+    visitRequestCompleted(visit: Visit): void;
+    visitRequestFailedWithStatusCode(visit: Visit, statusCode: number): void;
+    visitRequestFinished(visit: Visit): void;
+    visitRendered(visit: Visit): void;
+    pageInvalidated(reason: { reason: string }): void;
+    formSubmissionStarted(formSubmission: FormSubmission): void;
+    formSubmissionFinished(formSubmission: FormSubmission): void;
+    linkPrefetchingIsEnabledForLocation(location: URL): boolean;
+}
+
+export interface ProgressBar {
+    hiding: boolean;
+    value: number;
+    visible: boolean;
+    show(): void;
+    hide(): void;
+    setValue(value: number): void;
+}
+
 /**
- * Interface for accessing the browser adapter.
- * The adapter handles form submission lifecycle events.
+ * The delegate for the Turbo navigator — in practice, the active session.
+ * Provides access to the current adapter.
  */
-export interface BrowserAdapter {
-    formSubmissionStarted(formSubmission?: FormSubmission): void;
-    formSubmissionFinished(formSubmission?: FormSubmission): void;
+export interface NavigatorDelegate {
+    adapter: Adapter;
 }
 
 /**
@@ -119,6 +180,8 @@ export interface BrowserAdapter {
  * Provides methods for programmatic navigation and form submission.
  */
 export interface Navigator {
+    /** The delegate for this navigator (the active Turbo session). */
+    delegate: NavigatorDelegate;
     /**
      * Submits a form programmatically through Turbo Drive.
      *
@@ -222,17 +285,41 @@ export function disconnectStreamSource(source: StreamSource): void;
  */
 export function renderStreamMessage(message: StreamMessage | string): void;
 
+export interface TurboHistory {
+    readonly location: URL;
+    readonly restorationIdentifier: string;
+    push(location: URL, restorationIdentifier?: string): void;
+    replace(location: URL, restorationIdentifier?: string): void;
+}
+
 export interface TurboSession {
+    readonly history: TurboHistory;
+    adapter: Adapter;
+    readonly enabled: boolean;
+    readonly started: boolean;
+
     connectStreamSource(source: StreamSource): void;
     disconnectStreamSource(source: StreamSource): void;
     renderStreamMessage(message: StreamMessage | string): void;
+
     drive: boolean;
-    adapter: BrowserAdapter;
+    readonly location: URL;
+    readonly restorationIdentifier: string;
 }
 
-export const StreamActions: {
-    [action: string]: (this: StreamElement) => void;
-};
+/**
+ * A stream action callback. Invoked with the matched `StreamElement` as
+ * `this`, allowing access to its attributes and target elements.
+ */
+export type TurboStreamAction = (this: StreamElement) => void;
+
+/**
+ * A map of action names to their {@link TurboStreamAction} callbacks, as
+ * used by {@link StreamActions}.
+ */
+export type TurboStreamActions = Record<string, TurboStreamAction>;
+
+export const StreamActions: TurboStreamActions;
 
 export type Action = "advance" | "replace" | "restore";
 export interface VisitOptions {
@@ -252,7 +339,7 @@ export function start(): void;
  *
  * @param adapter Adapter to register
  */
-export function registerAdapter(adapter: unknown): void;
+export function registerAdapter(adapter: Adapter): void;
 
 /**
  * Sets the form mode for Turbo Drive.
@@ -388,9 +475,7 @@ export interface TurboGlobal {
     navigator: Navigator;
     cache: Cache;
     config: TurboConfig;
-    StreamActions: {
-        [action: string]: (this: StreamElement) => void;
-    };
+    StreamActions: TurboStreamActions;
 }
 
 declare global {
@@ -407,7 +492,7 @@ export type TurboBeforeRenderEvent = CustomEvent<{
     newBody: HTMLBodyElement;
     renderMethod: "replace" | "morph";
     isPreview: boolean;
-    resume: (value?: any) => void;
+    resume: (value?: unknown) => void;
     render: (currentBody: HTMLBodyElement, newBody: HTMLBodyElement) => void;
 }>;
 export type TurboBeforeVisitEvent = CustomEvent<{ url: string }>;
@@ -418,7 +503,7 @@ export type TurboClickEvent = CustomEvent<{
 export type TurboFrameLoadEvent = CustomEvent;
 export type TurboBeforeFrameRenderEvent = CustomEvent<{
     newFrame: FrameElement;
-    resume: (value?: any) => void;
+    resume: (value?: unknown) => void;
     render: (currentFrame: FrameElement, newFrame: FrameElement) => void;
 }>;
 export type TurboFrameRenderEvent = CustomEvent<{
@@ -451,7 +536,7 @@ export type TurboMorphElementEvent = CustomEvent<{
 
 export type TurboBeforeMorphAttributeEvent = CustomEvent<{
     attributeName: string;
-    mutationType: "updated" | "removed";
+    mutationType: "update" | "remove";
 }>;
 
 export type TurboBeforeFrameMorphEvent = CustomEvent<{
@@ -489,9 +574,9 @@ export type TurboFrameMissingEvent = CustomEvent<{
 }>;
 
 export type TurboBeforeFetchRequestEvent = CustomEvent<{
-    fetchOptions: RequestInit;
+    fetchOptions: Omit<RequestInit, "headers"> & { headers: FetchRequestHeaders };
     url: URL;
-    resume: (value: any) => void;
+    resume: (value?: unknown) => void;
 }>;
 
 export type TurboBeforeFetchResponseEvent = CustomEvent<{

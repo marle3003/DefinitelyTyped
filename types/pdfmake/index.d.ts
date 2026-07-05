@@ -9,6 +9,7 @@ import {
     TVirtualFileSystem,
 } from "./interfaces";
 
+export type { Alignment, Content, CustomTableLayout, Size, Style, Table, TableCell, TableLayout } from "./interfaces";
 export type { TCreatedPdf };
 
 export function createPdf(
@@ -36,5 +37,14 @@ export function addVirtualFileSystem(vfs: TVirtualFileSystem): void;
  * **Note:** Only supported in the browser.
  */
 export function addFontContainer(fontContainer: TFontContainer): void;
+
+/**
+ * **Note:** Only supported in Node.js.
+ */
+export function setUrlAccessPolicy(callback: (url: string) => boolean): void;
+/**
+ * **Note:** Only supported in Node.js.
+ */
+export function setLocalAccessPolicy(callback: (path: string) => boolean): void;
 
 export as namespace pdfMake;
